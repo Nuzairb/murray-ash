@@ -1,0 +1,271 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Murray Ash / Science of Self design tokens. Every `--text-*` name here is registered in
+   src/lib/utils.ts, or tailwind-merge silently drops it.
+
+   Two faces: Instrument Serif for every display and title preset (italic for accent words),
+   Inter Tight for body, labels and eyebrows. Breakpoints follow the studio convention: phone
+   bare, `md:` = 810px, `lg:` = 1200px.
+   --------------------------------------------------------------------------- */
+@theme {
+  --breakpoint-md: 810px;
+  --breakpoint-lg: 1200px;
+
+  --font-sans: var(--font-inter-tight), 'Inter Tight', system-ui, sans-serif;
+  --font-heading: var(--font-instrument-serif), 'Instrument Serif', Georgia, serif;
+
+  --color-ink: #15171f;
+  --color-muted: #5a5650;
+  --color-faint: #8c867d;
+  --color-canvas: #f3eee6;
+  --color-surface: #eae2d6;
+  --color-line: #d9cebf;
+  --color-copper: #9e5530;
+  --color-copper-deep: #874727;
+  --color-copper-bright: #d08a5c;
+  --color-night: #171a26;
+  --color-night-2: #1f2333;
+  --color-night-line: #33384d;
+  --color-mist: #b9b6c4;
+
+  --text-eyebrow: 12px;
+  --text-eyebrow--line-height: 16px;
+  --text-eyebrow--letter-spacing: 0.14em;
+
+  --text-label: 15px;
+  --text-label--line-height: 22px;
+  --text-label--letter-spacing: -0.15px;
+
+  --text-body: 16px;
+  --text-body--line-height: 26px;
+  --text-body--letter-spacing: -0.16px;
+
+  --text-lead: 19px;
+  --text-lead--line-height: 30px;
+  --text-lead--letter-spacing: -0.28px;
+
+  --text-stat: 44px;
+  --text-stat--line-height: 44px;
+  --text-stat--letter-spacing: -0.88px;
+
+  --text-title: 28px;
+  --text-title--line-height: 32px;
+  --text-title--letter-spacing: -0.28px;
+
+  --text-title-lg: 38px;
+  --text-title-lg--line-height: 42px;
+  --text-title-lg--letter-spacing: -0.57px;
+
+  --text-display-sm: 44px;
+  --text-display-sm--line-height: 46px;
+  --text-display-sm--letter-spacing: -0.88px;
+
+  --text-display: 64px;
+  --text-display--line-height: 64px;
+  --text-display--letter-spacing: -1.6px;
+
+  --text-display-xl: 92px;
+  --text-display-xl--line-height: 88px;
+  --text-display-xl--letter-spacing: -2.76px;
+
+  --animate-marquee: marquee 40s linear infinite;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-copper);
+  color: var(--color-canvas);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------------------------------------------------------------------------
+   Intro: scatter -> breathe -> ground -> named -> reveal. Drift, breath and cursor pull live
+   in intro-loader.tsx's rAF loop; everything below is the predetermined choreography.
+   --------------------------------------------------------------------------- */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+html[data-intro='seen'] .intro-loader {
+  display: none;
+}
+
+.intro-loader {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 900ms var(--ease-in-out);
+}
+
+/* The curtain lifts from the ground up. */
+.intro-loader[data-phase='reveal'] {
+  clip-path: inset(0 0 100% 0);
+}
+
+.intro-breath {
+  transform-box: view-box;
+  transform-origin: 16px 16px;
+}
+
+.intro-ring-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: intro-draw 1400ms var(--ease-out) forwards;
+}
+
+@keyframes intro-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.intro-ring {
+  transition: transform 1100ms var(--ease-out);
+}
+
+[data-phase='scatter'] .intro-ring-0 { transform: translate(-2.5px, -3px); }
+[data-phase='scatter'] .intro-ring-1 { transform: translate(4px, -6.5px); }
+[data-phase='scatter'] .intro-ring-2 { transform: translate(-4.5px, -11px); }
+[data-phase='breathe'] .intro-ring-0 { transform: translate(-1.2px, -1.5px); }
+[data-phase='breathe'] .intro-ring-1 { transform: translate(2px, -3.2px); }
+[data-phase='breathe'] .intro-ring-2 { transform: translate(-2.2px, -5.5px); }
+
+/* Holding tightens the rings a little before they let go and land. */
+[data-holding='true'][data-phase='scatter'] .intro-ring,
+[data-holding='true'][data-phase='breathe'] .intro-ring {
+  transform: translate(0, -1px);
+  transition-duration: 1200ms;
+}
+
+/* Largest ring lands first, the core last. */
+[data-phase='ground'] .intro-ring-1 { transition-delay: 140ms; }
+[data-phase='ground'] .intro-ring-2 { transition-delay: 280ms; }
+
+.intro-ground {
+  transform-box: view-box;
+  transform-origin: 16px 30px;
+  transform: scaleX(0);
+  opacity: 0;
+  transition:
+    transform 1200ms var(--ease-out),
+    opacity 400ms var(--ease-out);
+}
+
+.intro-dot {
+  transform-box: view-box;
+  transform-origin: 16px 30px;
+  transform: scale(0.6);
+  opacity: 0;
+  transition:
+    transform 500ms var(--ease-out) 500ms,
+    opacity 500ms var(--ease-out) 500ms;
+}
+
+:is([data-phase='ground'], [data-phase='named'], [data-phase='reveal']) :is(.intro-ground, .intro-dot) {
+  transform: none;
+  opacity: 1;
+}
+
+.intro-chapter,
+.intro-tagline,
+.intro-letter {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 450ms var(--ease-out),
+    transform 600ms var(--ease-out);
+}
+
+.intro-chapter[data-active='true'] {
+  opacity: 1;
+  transform: none;
+  transition-delay: 150ms;
+}
+
+.intro-letter {
+  transition-delay: calc(var(--i) * 45ms);
+}
+
+.intro-tagline {
+  transition-delay: 550ms;
+}
+
+:is([data-phase='named'], [data-phase='reveal']) :is(.intro-letter, .intro-tagline) {
+  opacity: 1;
+  transform: none;
+}
+
+.intro-hint {
+  transition: opacity 400ms var(--ease-out);
+}
+
+:not(:is([data-phase='scatter'], [data-phase='breathe'])) > .intro-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-hold {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 200ms var(--ease-out);
+}
+
+/* Linear while deciding, snappy on release. */
+[data-holding='true'] .intro-hold {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1200ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-loader,
+  .intro-ring,
+  .intro-ground,
+  .intro-dot,
+  .intro-chapter,
+  .intro-tagline,
+  .intro-letter {
+    transition-property: opacity;
+  }
+  .intro-ring-stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .intro-loader[data-phase='reveal'] {
+    clip-path: none;
+    opacity: 0;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .animate-marquee {
+    animation: none;
+  }
+}
